@@ -1,12 +1,19 @@
 from flask import Flask, render_template, jsonify, request
 from pymongo import MongoClient  
 
-# from bson.objectid import ObjectId
+from bson import json_util
+from mongoengine_jsonencoder import MongoJSONEncoder
+# ObjectId -> str 변경
+
+from bson.objectid import ObjectId #str -> ObjectId 변경
+
 
 app = Flask(__name__)
+app.json_encoder = MongoJSONEncoder # json 타입 적용
 
 client = MongoClient('localhost', 27017) 
-db = client.dbsparta  
+db = client.dbtest  
+#MongoDB dbtest 생성
 
 @app.route('/')
 def home():
@@ -27,36 +34,32 @@ def post_article():
 
 @app.route('/memo/list', methods=['GET'])
 def read_articles():
-   result = list(db.articles.find({}, {'_id': 0})) 
-   #2 _id -> string 변경 후 json 전달 필요
+   # result = list(db.articles.find({}, {'_id': 0})) # id를 제외하고 검색
+   result = list(db.articles.find({})) 
+
    return jsonify({'result': 'success', 'articles': result})
 
 
-@app.route('/memo/check', methods=['POST'])
-def check_article():
-   title_receive = request.form['title_give']
-
-   article = db.articles.find_one({'title': title_receive})
-   global id_receive #3 임시 전역변수. read_article에서 pk _id 넘기고 삭제 예정
-   id_receive = article['_id']
-
-   return jsonify({'result': 'success'})
-
 @app.route('/memo/modify', methods=['POST'])
 def modify_article():
+   id_receive = request.form['id_give']
    title_receive = request.form['title_give']
    comment_receive = request.form['comment_give']
 
-   db.articles.update({'_id': id_receive}, {'$set': {'title': title_receive, 'comment': comment_receive}})
+   bson_id = ObjectId(id_receive) # str -> objectID 변경
+
+   db.articles.update_one({'_id': bson_id}, {'$set': {'title': title_receive, 'comment': comment_receive}})
 
    return jsonify({'result': 'success'})
 
 
 @app.route('/memo/delete', methods=['POST'])
 def delete_article():
-   title_receive = request.form['title_give']
-   
-   db.articles.delete_one({'title': title_receive}) #4 pk값 _id로 변경해야함
+   id_receive = request.form['id_give']
+
+   bson_id = ObjectId(id_receive) # str -> objectID 변경
+
+   db.articles.delete_one({'_id': bson_id}) #_id로 삭제
    
    return jsonify({'result': 'success'})
 

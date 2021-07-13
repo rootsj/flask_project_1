@@ -10,7 +10,7 @@
             integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l"
             crossorigin="anonymous">
 
-			  <!-- JS -->
+        <!-- JS -->
         <script
             src="https://code.jquery.com/jquery-3.6.0.js"
             integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
@@ -23,7 +23,7 @@
         <link href="https://fonts.googleapis.com/css?family=Stylish&display=swap" rel="stylesheet">
 
 
-        <title>SW사관학교 정글 | 입학시험 - 나홀로 메모장 ver 2.0 </title>
+        <title>메모장 CRUD 테스트 </title>
 
         <!-- style -->
         <style type="text/css">
@@ -87,60 +87,48 @@
                     success: function(response){
                     let articles = response["articles"];
                     for (let i = 0; i < articles.length; i++) {
-                        makeCard(articles[i]["title"], articles[i]["comment"]) //_id 추가예정
+                        makeCard(articles[i]["_id"], articles[i]["title"], articles[i]["comment"])
                     }
                     }
                 })
             }
 
-            function makeCard(title, comment) { // 98, 104line -> ${id} 변경 예정
+            function makeCard(id, title, comment) {
                 let temp_html = `<div class="card">
-                                    <div id=${title} class="card-body">
+                                    <div id=${id} class="card-body">
                                       <p class="card-title">${title}</a>
                                       <p class="card-text comment">${comment}</p>
-                                      <button type="button" class="btn btn-primary" onclick="openModify('${title}')">수정</button>
-                                      <button type="button" class="btn btn-primary" onclick="deleteArticle('${title}')">삭제</button>
+                                      <button type="button" class="btn btn-primary" onclick="openModify('${id}')">수정</button>
+                                      <button type="button" class="btn btn-primary" onclick="deleteArticle('${id}')">삭제</button>
                                     </div>
-                                    <div id=${title}modify style="display:none">
+                                    <div id=${id}modify style="display:none"> 
                                       <div class="form-group">
-                                          <input type='text' id=${title}-newtitle class="form-control" rows="1" placeholder="메모 제목을 입력하세요" value=${title}>
-                                          <textarea id=${title}-newcon class="form-control" rows="4" placeholder="내용을 입력하세요">${comment}</textarea>
+                                          <input type='text' id=${id}-newtitle class="form-control" rows="1" placeholder="메모 제목을 입력하세요" value=${title}>
+                                          <textarea id=${id}-newcon class="form-control" rows="4" placeholder="내용을 입력하세요">${comment}</textarea>
                                       </div>
-                                      <button type="button" class="btn btn-primary" onclick="modifyArticle('${title}')">저장</button>
+                                      <button type="button" class="btn btn-primary" onclick="modifyArticle('${id}')">저장</button>
                                     </div>
                                 </div>`;
                 $("#cards-box").append(temp_html);
             }
 
             
-            function openModify(title) { 
-              $.ajax({ //임시 pk값 확인
-                    type: "POST", 
-                    url: "/memo/check", 
-                    data: {title_give: title}, 
-                    success: function(response){ 
-                    if (response["result"] == "success") {
-                    } else {
-                        alert("서버 오류!")
-                    }
-                    }
-                })
-
-              if ($('#'+title+'modify').css("display") == "none") {
-                $('#'+title+'modify').show();
-                $('#'+title).hide();
+            function openModify(id) { 
+              if ($('#'+id+'modify').css("display") == "none") {
+                $('#'+id+'modify').show();
+                $('#'+id).hide();
               }
             }
             
 
-            function modifyArticle(title) { // id전달 추가 예정
-                let ntitle = $('#'+title+'-newtitle').val();
-                let ncomment = $('#'+title+'-newcon').val();
+            function modifyArticle(id) { 
+                let ntitle = $('#'+id+'-newtitle').val();
+                let ncomment = $('#'+id+'-newcon').val();
 
                 $.ajax({
                     type: "POST", 
                     url: "/memo/modify", 
-                    data: {title_give: ntitle, comment_give: ncomment}, 
+                    data: {id_give: id, title_give: ntitle, comment_give: ncomment}, 
                     success: function(response){ 
                     if (response["result"] == "success") {
                         alert("저장 완료!");
@@ -152,11 +140,11 @@
                 })
             }
             
-            function deleteArticle(title) { // title -> id 예정
+            function deleteArticle(id) {
                 $.ajax({
                     type: "POST", 
                     url: "/memo/delete",
-                    data: {title_give: title}, 
+                    data: {id_give: id}, 
                     success: function(response){
                     if (response["result"] == "success") {
                         alert("삭제 완료!");
@@ -174,7 +162,7 @@
     <body>
         <div class="wrap">
             <div class="jumbotron">
-                <h1 class="display-4">나홀로 메모장 ver 2.0</h1>
+                <h1 class="display-4">메모장</h1>
                 <hr class="my-4">
                 <p class="lead">
                 </p>
