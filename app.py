@@ -60,6 +60,7 @@ def modify_article():
    #2 str -> objectID 변경 필요
    bson_id = ObjectId(id_receive)
 
+   # 테스트용 
    print(bson_id)
    print(type(bson_id))
 
