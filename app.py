@@ -61,6 +61,8 @@ def modify_article():
    bson_id = ObjectId(id_receive)
 
    # 테스트용 
+   # 테스트용 2
+
    print(bson_id)
    print(type(bson_id))
 
